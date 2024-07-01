@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard</title>
+</head>
+<body>
+  <div id="dashboard">
+    <h1>Student Dashboard</h1>
+    <div id="user-info"></div>
+    <div id="user-data"></div>
+  </div>
+
+  <script>
+    async function fetchUserData() {
+      const token = "YOUR_ACCESS_TOKEN"; // You should get this token after login
+      const response = await fetch("http://127.0.0.1:8000/users/me", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        console.error("Failed to fetch user data");
+        return;
+      }
+
+      const userData = await response.json();
+      displayUserData(userData);
+    }
+
+    function displayUserData(user) {
+      const userInfoDiv = document.getElementById("user-info");
+      userInfoDiv.innerHTML = `
+        <p>Email: ${user.email}</p>
+        <p>Role: ${user.role}</p>
+        <p>Class: ${user.class_}</p>
+        <p>Roll Number: ${user.roll_number}</p>
+        <p>Admission ID: ${user.admission_id}</p>
+      `;
+
+      const userDataDiv = document.getElementById("user-data");
+      userDataDiv.innerHTML = `
+        <h2>Data</h2>
+        <p>Subject Grades: ${JSON.stringify(user.data.subject_grades)}</p>
+        <p>Attendance: ${user.data.attendance}</p>
+      `;
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchUserData);
+  </script>
+</body>
+</html>

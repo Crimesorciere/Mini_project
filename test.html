@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Questions and Answers</title>
+  <style>
+    .input-fields {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button id="questions-button" class="btn">Questions</button>
+    <button id="answers-button" class="btn">Answers</button>
+
+    <!-- Questions Input Fields -->
+    <div id="questions-fields" class="input-fields">
+      <div class="input-field">
+        <input type="text" id="question1" placeholder="Question 1">
+      </div>
+      <div class="input-field">
+        <input type="text" id="question2" placeholder="Question 2">
+      </div>
+      <div class="input-field">
+        <input type="text" id="question3" placeholder="Question 3">
+      </div>
+      <div class="input-field">
+        <input type="text" id="question4" placeholder="Question 4">
+      </div>
+    </div>
+
+    <!-- Answers Input Fields -->
+    <div id="answers-fields" class="input-fields">
+      <div class="input-field">
+        <input type="text" id="answer1" placeholder="Answer 1">
+      </div>
+      <div class="input-field">
+        <input type="text" id="answer2" placeholder="Answer 2">
+      </div>
+      <div class="input-field">
+        <input type="text" id="answer3" placeholder="Answer 3">
+      </div>
+      <div class="input-field">
+        <input type="text" id="answer4" placeholder="Answer 4">
+      </div>
+    </div>
+
+
+    <div id="dropdown-container" class="dropdown">
+        <label for="student-emails">Select Student Email:</label>
+        <select id="student-emails">
+          <option value="">Select a student</option>
+        </select>
+      </div>
+      
+  </div>
+  <div><button id="submit-button" class="btn">Submit</button></div>
+
+  <script type="module">
+    import { getAuth, createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, getDoc, setDoc, getDocs, getDocFromCache, addDoc, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+import { getDatabase, ref, set, child, get, update, remove } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCJli22BQGRCHyTvrMBVD4leAwJ8guZq6g",
+    authDomain: "trial3-8d757.firebaseapp.com",
+    projectId: "trial3-8d757",
+    appId: "1:503843990927:web:83a72336ff06ea79af6ffa",
+    measurementId: "G-XH7PG479RT"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+// make auth and firestore references
+const auth = getAuth(app);
+const db = getFirestore(app);
+const realtimeDB = getDatabase(app);
+const studentDataMap = {};
+const teacher_id = localStorage.getItem('teacher_id');
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const questionsButton = document.getElementById('questions-button');
+      const answersButton = document.getElementById('answers-button');
+      const questionsFields = document.getElementById('questions-fields');
+      const answersFields = document.getElementById('answers-fields');
+        const className = localStorage.getItem('classname');
+        const dropdownContainer = document.getElementById('dropdown-container');
+      const studentEmailsSelect = document.getElementById('student-emails');
+      const submitButton = document.getElementById('submit-button');
+        console.log(className);
+      questionsButton.addEventListener('click', function () {
+        questionsFields.style.display = 'block';
+        answersFields.style.display = 'none';
+      });
+
+      answersButton.addEventListener('click', function () {
+        answersFields.style.display = 'block';
+        questionsFields.style.display = 'none';
+      });
+      if (className) {
+           populateStudentEmailsDropdown(className);
+        } else {
+          console.error('Class name not found in localStorage.');
+        }
+     
+      if (className) {
+        getClassData(className);
+      } else {
+        console.error('Class name not found in localStorage.');
+      }
+  
+
+    async function getClassData(className) {
+      try {
+        // Get the collection for the specified class
+        const classCollection = collection(db, className);
+        const studentsSnapshot = await getDocs(classCollection);
+
+        // Count the number of students
+        const numberOfStudents = studentsSnapshot.size;
+        console.log('Number of Students:', numberOfStudents);
+
+        // Log student documents data
+        studentsSnapshot.forEach(doc => {
+          console.log('Student:', doc.data());
+        });
+      } catch (error) {
+        console.error('Error fetching students:', error);
+      }
+    }
+
+   
+      async function populateStudentEmailsDropdown(className) {
+      try {
+        // Get the collection for the specified class
+        const classCollection = collection(db, className);
+        const studentsSnapshot = await getDocs(classCollection);
+       
+        // Clear previous options
+        studentEmailsSelect.innerHTML = '<option value="">Select a student</option>';
+
+        // Add new options
+        studentsSnapshot.forEach(doc => {
+          const studentData = doc.data();
+          studentDataMap[doc.id] = studentData.email;
+          const option = document.createElement('option');
+          option.value = studentData.email;
+          option.textContent = studentData.email;
+          studentEmailsSelect.appendChild(option);
+        });
+
+        console.log('Student Data Map:', studentDataMap);
+      } catch (error) {
+        console.error('Error populating student emails:', error);
+      }
+    }
+
+
+
+
+    submitButton.addEventListener('click', async function () {
+        const questions = [
+          document.getElementById('question1').value,
+          document.getElementById('question2').value,
+          document.getElementById('question3').value,
+          document.getElementById('question4').value,
+        ];
+
+        const answers = [
+          document.getElementById('answer1').value,
+          document.getElementById('answer2').value,
+          document.getElementById('answer3').value,
+          document.getElementById('answer4').value,
+        ];
+
+        const selectedStudentEmail = studentEmailsSelect.value;
+        if (!selectedStudentEmail) {
+          alert('Please select a student.');
+          return;
+        }
+        console.log('the teachs ----',teacher_id);
+        const class_name = localStorage.getItem('classname');
+
+        const selectedStudentUID = studentDataMap[selectedStudentEmail];
+        const studentId = Object.keys(studentDataMap).find(key => studentDataMap[key] === selectedStudentEmail);
+        console.log(studentId);
+        console.log('Student Data Map:---->', studentDataMap);
+        const payload = {
+          questions,
+          answers,
+          student_uid: studentId,
+          teacher_uid: teacher_id,
+          class_name: class_name,
+        };
+
+        try {
+          const response = await fetch('http://127.0.0.1:8000/submit-data', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (response.ok) {
+            console.log('Data submitted successfully.');
+          } else {
+            console.error('Failed to submit data.');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      });
+}); 
+  </script>
+</body>
+</html>

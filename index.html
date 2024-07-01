@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login and Registration</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+</head>
+<body>
+
+  <!-- Registration Form -->
+  <div class="container">
+    <h4>Register</h4>
+    <form id="signup-form">
+      <div class="input-field">
+        <input type="email" id="signup-email" required>
+        <label for="signup-email">Email</label>
+      </div>
+      <div class="input-field">
+        <input type="password" id="signup-password" required>
+        <label for="signup-password">Password</label>
+      </div>
+      <div class="input-field">
+        <input type="text" id="signup-name" required>
+        <label for="signup-name"> Name</label>
+      </div>
+      <div class="input-field ">
+        <input type="text" id="signup-role-field" required>
+        <label for="signup-role">Role</label>
+      </div>
+      <div class="input-field">
+        <input type="text" id="signup-college" required>
+        <label for="signup-college">College Name</label>
+      </div>
+      <div class="input-field student" style="display: none">
+        <input type="text" id="signup-class" >
+        <label for="signup-class">Class</label>
+      </div>
+      <div class="input-field student" style="display: none">
+        <input type="text" id="signup-roll-number" >
+        <label for="signup-roll-number">Roll Number</label>
+      </div>
+      
+      <button class="btn" type="submit">Sign Up</button>
+    </form>
+  </div>
+
+  <!-- Login Form -->
+  <!-- Login Form -->
+  <div class="container">
+    <h4>Login</h4>
+    <form id="login-form">
+      <div class="input-field">
+        <input type="email" id="login-email"  required>
+        <label for="login-email">Email</label>
+      </div>
+      <div class="input-field">
+        <input type="password" id="login-password"  required>
+        <label for="login-password">Password</label>
+      </div>
+      
+      <div class="input-field">
+        <input type="text" id="login-role" required>
+        <label for="login-role">Role</label>
+      </div>
+      <button class="btn" id="login-button"type="submit">Login</button>
+    </form>
+  </div>
+
+  <!-- Scripts -->
+ 
+  <script type="module" src="auth.js"></script>
+</body>
+</html>
